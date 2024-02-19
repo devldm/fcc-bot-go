@@ -52,6 +52,12 @@ func (c *Commands) create() {
 		allSuccessful = false
 	}
 
+	if _, err := c.bot.Session.ApplicationCommandCreate(c.bot.Cfg.bot.id, c.bot.Cfg.server.guild, ThankCommand); err != nil {
+		c.bot.SendLog(msg.LogError, "Whilst adding thank command:")
+		c.bot.SendLog(msg.LogError, err.Error())
+		allSuccessful = false
+	}
+
 	if _, err := c.bot.Session.ApplicationCommandCreate(c.bot.Cfg.bot.id, c.bot.Cfg.server.guild, RemindCommand); err != nil {
 		c.bot.SendLog(msg.LogError, "Whilst adding remind command:")
 		c.bot.SendLog(msg.LogError, err.Error())
@@ -162,6 +168,26 @@ var LearningResourceCommand = &discordgo.ApplicationCommand{
 			Name:        "resource-description",
 			Type:        discordgo.ApplicationCommandOptionString,
 			Description: "A description of the resource. What language is it for? What can we learn from it?",
+			Required:    true,
+		},
+	},
+}
+
+var ThankCommand = &discordgo.ApplicationCommand{
+	Name:        "thanks",
+	Type:        discordgo.ChatApplicationCommand,
+	Description: "Give thanks to a member of the community",
+	Options: []*discordgo.ApplicationCommandOption{
+		{
+			Name:        "user",
+			Type:        discordgo.ApplicationCommandOptionUser,
+			Description: "Who do you want to thank?",
+			Required:    true,
+		},
+		{
+			Name:        "reason-for-thanks",
+			Type:        discordgo.ApplicationCommandOptionString,
+			Description: "Specify why you are thanking them.",
 			Required:    true,
 		},
 	},
@@ -355,7 +381,15 @@ func (c *Commands) RegularCommandGroup(s *discordgo.Session, i *discordgo.Intera
 
 			c.bot.Utils.SendResponse(i, "Thanks for posting a Learning Resource!")
 		}
+	case "thanks":
+		userToThank := options[0].UserValue(s)
+		reasonForThanks := options[1].StringValue()
 
+		messageContents := fmt.Sprintf("Thanks to %s, for helping %s with:\n %s", userToThank.Mention(), interactionMember.User.Mention(), reasonForThanks)
+		c.bot.Session.ChannelMessageSend(c.bot.Cfg.server.thanks, messageContents)
+		c.bot.SendLog(msg.LogThanks, fmt.Sprintf("%s said thanks to another user via the bot", interactionMember.User.Username))
+
+		c.bot.Utils.SendResponse(i, "Thanks for showing your appreciation!")
 	}
 }
 

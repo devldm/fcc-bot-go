@@ -19,6 +19,7 @@ type ChannelCfg struct {
 	intros            string
 	rfr               string
 	learningResources string
+	thanks            string
 }
 
 type BotCfg struct {
@@ -84,6 +85,7 @@ func main() {
 			intros:            os.Getenv("INTRO_CHANNEL"),
 			rfr:               os.Getenv("RFR_POST"),
 			learningResources: os.Getenv("LEARNING_RESOURCE_CHANNEL"),
+			thanks:            os.Getenv("THANKS_CHANNEL"),
 		},
 		bot: BotCfg{
 			token: os.Getenv("BOT_TOKEN"),

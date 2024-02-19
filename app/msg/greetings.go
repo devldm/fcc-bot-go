@@ -25,6 +25,7 @@ const (
 	LogError        string = "[ERROR]         "
 	LogLearning     string = "[Learning]      "
 	LogShutdown     string = "[Shutdown]      "
+	LogThanks       string = "[Thanks]        "
 )
 
 const (
