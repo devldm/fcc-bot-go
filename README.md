@@ -21,12 +21,10 @@ If you are intending to fork FCCBot to use in your own server, understand that w
 
 ## **Getting Started**
 
-
 ### **Installation**
 
 1. Clone the repository.
 2. Run `go get` to install the packages needed.
-
 
 ### **Running**
 
@@ -43,6 +41,7 @@ You will need to create .env files before running the bot: `dev.env` and `prod.e
 | LOG_CHANNEL               | The log channel's id: create a channel, and right click it                         |
 | INTRO_CHANNEL             | The introduction channel's id: create a channel, and right click it                |
 | LEARNING_RESOURCE_CHANNEL | The learning resource channel's id: create a channel, and right click it           |
+| HELP_CHANNEL              | The help channel's id: create a channel, and right click it           |
 | RFR_POST                  | The post to listen for react-for-role reactions: create a post, and right click it |
 | ROLE_VERIFIED             | The role users receive when validated: create a role, and right click it           |
 

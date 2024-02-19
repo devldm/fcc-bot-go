@@ -117,12 +117,30 @@ func (e *Events) parseReactionAdded(m *discordgo.MessageReactionAdd) {
 		return
 	}
 
+	// Get the channel the message was sent in (needed to check parent channel)
+	channel, err := e.bot.Session.Channel(m.ChannelID)
+	if err != nil {
+		e.bot.SendLog(msg.LogError, "Whilst fetching channel from message channel id:")
+		e.bot.SendLog(msg.LogError, err.Error())
+		return
+	}
+
 	// Only verified users can use this feature
 	if isVerified, _ := e.bot.Utils.MemberHasRoleByRoleID(member, e.bot.Cfg.roles.verified); !isVerified {
 		return
 	}
 
 	emojiUsed := m.Emoji.MessageFormat()
+
+	// If the reaction was in any thread within the help channel:
+	if channel.ParentID == e.bot.Cfg.server.help {
+
+		messageContents := fmt.Sprintf("User: %s thanked User: %s, in thread: %s (%s), on message: %s, reacted with: %s", member.User.Username, m.Member.User.Username, channel.ID, channel.Name, m.MessageID, emojiUsed)
+		// check if the user reacted with the thanks emoji && the message is not the initial forum post
+		if emojiUsed == ThanksEmoji && channel.ID != m.MessageID {
+			e.bot.Session.ChannelMessageSend("1208971660166701060", messageContents)
+		}
+	}
 
 	// If the reaction was on the RFR Post:
 	if m.MessageID == e.bot.Cfg.server.rfr {
@@ -146,11 +164,27 @@ func (e *Events) parseReactionAdded(m *discordgo.MessageReactionAdd) {
 func (e *Events) parseReactionRemoved(m *discordgo.MessageReactionRemove) {
 	emojiUsed := m.Emoji.MessageFormat()
 
+	// Get the channel the message was sent in (needed to check parent channel)
+	channel, err := e.bot.Session.Channel(m.ChannelID)
+	if err != nil {
+		e.bot.SendLog(msg.LogError, "Whilst fetching channel from message channel id:")
+		e.bot.SendLog(msg.LogError, err.Error())
+		return
+	}
+
 	member, err := e.bot.Utils.GetMemberByID(m.UserID)
 	if err != nil {
 		e.bot.SendLog(msg.LogError, "Whilst parsing reaction remove:")
 		e.bot.SendLog(msg.LogError, err.Error())
 		return
+	}
+
+	if channel.ParentID == e.bot.Cfg.server.help {
+		messageContents := fmt.Sprintf("User: %s removed thanks from User: %s, in thread: %s (%s), on message: %s, removed emoji: %s", member.User.Username, m.UserID, channel.ID, channel.Name, m.MessageID, emojiUsed)
+		// check if the user reacted with the thanks emoji && the message is not the initial forum post
+		if emojiUsed == ThanksEmoji && channel.ID != m.MessageID {
+			e.bot.Session.ChannelMessageSend("1208971660166701060", messageContents)
+		}
 	}
 
 	// If the reaction was on the RFR Post:
@@ -404,6 +438,7 @@ const BotProcessedEmoji = "✅"
 const LearningEmoji = "💡"
 
 const OnlineMeetupEmoji = "🍇"
+const ThanksEmoji = "🙏"
 const OnlineMeetupRoleID = "933240244596256808"
 const BotLogRoleID = "1194103220470034462"
 
